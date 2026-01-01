@@ -13,7 +13,6 @@ import com.greengrocer.database.DatabaseAdapter;
  * greengrocer
  * with support for customers, carriers, and owner roles.
  * 
-
  * @version 1.0
  */
 public class Main extends Application {
