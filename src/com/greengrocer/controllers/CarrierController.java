@@ -14,7 +14,7 @@ import java.util.List;
  * Controller for the Carrier interface.
  * Handles order selection and delivery completion.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class CarrierController {
@@ -36,6 +36,13 @@ public class CarrierController {
     private RatingDAO ratingDAO;
     private UserDAO userDAO;
     private User currentUser;
+
+    /**
+     * Default constructor for CarrierController.
+     * Called by JavaFX when loading the FXML file.
+     */
+    public CarrierController() {
+    }
 
     /**
      * Initializes the controller.
@@ -226,6 +233,6 @@ public class CarrierController {
     private void handleLogout(ActionEvent event) {
         SessionManager.getInstance().logout();
         Stage stage = (Stage) usernameLabel.getScene().getWindow();
-        SceneNavigator.loadScene(stage, "Login.fxml", "GreenGrocer - Login");
+        SceneNavigator.loadScene(stage, "Login.fxml", "Grocer App - Login");
     }
 }

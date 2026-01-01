@@ -7,7 +7,7 @@ import java.sql.*;
  * Data Access Object for LoyaltySettings operations.
  * Handles loyalty discount settings managed by owner.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class LoyaltySettingsDAO {

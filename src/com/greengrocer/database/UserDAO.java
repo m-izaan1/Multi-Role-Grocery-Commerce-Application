@@ -9,7 +9,7 @@ import java.util.List;
  * Data Access Object for User operations.
  * Handles all database operations related to users.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class UserDAO {

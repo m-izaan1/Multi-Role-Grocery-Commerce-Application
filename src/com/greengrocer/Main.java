@@ -13,7 +13,7 @@ import com.greengrocer.database.DatabaseAdapter;
  * greengrocer
  * with support for customers, carriers, and owner roles.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class Main extends Application {
@@ -23,6 +23,12 @@ public class Main extends Application {
 
     /** The initial height of the application window */
     public static final int WINDOW_HEIGHT = 540;
+
+    /**
+     * Default constructor for the Main application class.
+     */
+    public Main() {
+    }
 
     /**
      * The main entry point for the JavaFX application.
@@ -49,7 +55,7 @@ public class Main extends Application {
                     .add(getClass().getResource("/com/greengrocer/styles/application.css").toExternalForm());
 
             // Configure the stage
-            primaryStage.setTitle("GreenGrocer - Login");
+            primaryStage.setTitle("Grocer App - Login");
             primaryStage.setScene(scene);
             primaryStage.setMinWidth(800);
             primaryStage.setMinHeight(450);

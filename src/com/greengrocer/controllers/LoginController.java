@@ -17,7 +17,7 @@ import javafx.stage.Stage;
  * Controller for the Login screen.
  * Handles user authentication and navigation to role-specific interfaces.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class LoginController {
@@ -41,6 +41,13 @@ public class LoginController {
     private UserDAO userDAO;
 
     /**
+     * Default constructor for LoginController.
+     * Called by JavaFX when loading the FXML file.
+     */
+    public LoginController() {
+    }
+
+    /**
      * Initializes the controller.
      * Called automatically after FXML is loaded.
      */
@@ -48,6 +55,7 @@ public class LoginController {
     public void initialize() {
         userDAO = new UserDAO();
         errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
     }
 
     /**
@@ -79,13 +87,13 @@ public class LoginController {
 
             switch (user.getRole()) {
                 case "CUSTOMER":
-                    SceneNavigator.loadScene(stage, "Customer.fxml", "GreenGrocer - Customer");
+                    SceneNavigator.loadScene(stage, "Customer.fxml", "Grocer App - Customer");
                     break;
                 case "CARRIER":
-                    SceneNavigator.loadScene(stage, "Carrier.fxml", "GreenGrocer - Carrier");
+                    SceneNavigator.loadScene(stage, "Carrier.fxml", "Grocer App - Carrier");
                     break;
                 case "OWNER":
-                    SceneNavigator.loadScene(stage, "Owner.fxml", "GreenGrocer - Owner");
+                    SceneNavigator.loadScene(stage, "Owner.fxml", "Grocer App - Owner");
                     break;
                 default:
                     showError("Unknown user role.");
@@ -106,7 +114,7 @@ public class LoginController {
     @FXML
     private void handleRegisterLink(ActionEvent event) {
         Stage stage = (Stage) registerLink.getScene().getWindow();
-        SceneNavigator.loadScene(stage, "Registration.fxml", "GreenGrocer - Register");
+        SceneNavigator.loadScene(stage, "Registration.fxml", "Grocer App - Register");
     }
 
     /**
@@ -116,6 +124,7 @@ public class LoginController {
      */
     private void showError(String message) {
         errorLabel.setText(message);
+        errorLabel.setManaged(true);
         errorLabel.setVisible(true);
     }
 }

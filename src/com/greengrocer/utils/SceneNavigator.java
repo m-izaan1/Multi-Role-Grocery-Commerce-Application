@@ -9,7 +9,7 @@ import javafx.stage.Stage;
  * Utility class for scene navigation.
  * Provides methods to switch between different views.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class SceneNavigator {
@@ -21,7 +21,15 @@ public class SceneNavigator {
     public static final int WINDOW_HEIGHT = 540;
 
     /**
+     * Private constructor to prevent instantiation.
+     * This is a utility class with only static methods.
+     */
+    private SceneNavigator() {
+    }
+
+    /**
      * Loads a new scene in the given stage.
+     * Preserves fullscreen and maximized window states.
      * 
      * @param stage    The stage to load the scene in
      * @param fxmlPath The path to the FXML file (relative to views folder)
@@ -29,10 +37,20 @@ public class SceneNavigator {
      */
     public static void loadScene(Stage stage, String fxmlPath, String title) {
         try {
+            // Preserve current window state
+            boolean wasMaximized = stage.isMaximized();
+            boolean wasFullScreen = stage.isFullScreen();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
             FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource("/com/greengrocer/views/" + fxmlPath));
             Parent root = loader.load();
 
-            Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+            // Use current window size if already shown, otherwise use defaults
+            double width = currentWidth > 0 ? currentWidth : WINDOW_WIDTH;
+            double height = currentHeight > 0 ? currentHeight : WINDOW_HEIGHT;
+
+            Scene scene = new Scene(root, width, height);
             scene.getStylesheets()
                     .add(SceneNavigator.class.getResource("/com/greengrocer/styles/application.css").toExternalForm());
 
@@ -40,7 +58,13 @@ public class SceneNavigator {
             stage.setScene(scene);
             stage.setMinWidth(800);
             stage.setMinHeight(450);
-            stage.centerOnScreen();
+
+            // Restore window state
+            if (wasFullScreen) {
+                stage.setFullScreen(true);
+            } else if (wasMaximized) {
+                stage.setMaximized(true);
+            }
 
         } catch (Exception e) {
             System.err.println("Error loading scene: " + e.getMessage());

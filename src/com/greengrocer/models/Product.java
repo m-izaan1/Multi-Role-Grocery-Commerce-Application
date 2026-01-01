@@ -4,7 +4,7 @@ package com.greengrocer.models;
  * Represents a product (vegetable or fruit) in the Greengrocer system.
  * Products have prices that double when stock falls below threshold.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class Product {

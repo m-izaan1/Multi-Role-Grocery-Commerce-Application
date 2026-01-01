@@ -16,7 +16,7 @@ import java.util.List;
  * PDF Invoice Generator using iTextPDF library.
  * Generates PDF invoices stored as BLOB in database.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class PdfInvoiceGenerator {
@@ -30,6 +30,13 @@ public class PdfInvoiceGenerator {
     private static Font NORMAL_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
     private static Font SMALL_FONT = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.GRAY);
     private static Font TOTAL_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
+
+    /**
+     * Private constructor to prevent instantiation.
+     * This is a utility class with only static methods.
+     */
+    private PdfInvoiceGenerator() {
+    }
 
     /**
      * Generates a PDF invoice as a byte array.
@@ -91,7 +98,7 @@ public class PdfInvoiceGenerator {
             document.open();
 
             // Header
-            Paragraph title = new Paragraph("GREENGROCER", TITLE_FONT);
+            Paragraph title = new Paragraph("GROCER APP", TITLE_FONT);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
@@ -141,7 +148,7 @@ public class PdfInvoiceGenerator {
 
             // Footer
             document.add(Chunk.NEWLINE);
-            Paragraph footer = new Paragraph("Thank you for shopping at GreenGrocer!", SMALL_FONT);
+            Paragraph footer = new Paragraph("Thank you for shopping at Grocer App!", SMALL_FONT);
             footer.setAlignment(Element.ALIGN_CENTER);
             document.add(footer);
 
@@ -159,7 +166,7 @@ public class PdfInvoiceGenerator {
      * Adds the header section to the document.
      */
     private static void addHeader(Document document, Order order) throws DocumentException {
-        Paragraph title = new Paragraph("GREENGROCER", TITLE_FONT);
+        Paragraph title = new Paragraph("GROCER APP", TITLE_FONT);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
 
@@ -288,7 +295,7 @@ public class PdfInvoiceGenerator {
         document.add(new LineSeparator());
         document.add(Chunk.NEWLINE);
 
-        Paragraph thanks = new Paragraph("Thank you for shopping at GreenGrocer!", NORMAL_FONT);
+        Paragraph thanks = new Paragraph("Thank you for shopping at Grocer App!", NORMAL_FONT);
         thanks.setAlignment(Element.ALIGN_CENTER);
         document.add(thanks);
 

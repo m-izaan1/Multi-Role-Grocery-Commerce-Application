@@ -8,10 +8,17 @@ import java.util.Optional;
  * Utility class for displaying alert dialogs.
  * Provides methods for common alert types.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class AlertUtils {
+
+    /**
+     * Private constructor to prevent instantiation.
+     * This is a utility class with only static methods.
+     */
+    private AlertUtils() {
+    }
 
     /**
      * Shows an information alert.

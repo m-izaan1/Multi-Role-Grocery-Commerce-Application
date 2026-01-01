@@ -10,8 +10,15 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -22,7 +29,7 @@ import java.util.Optional;
  * Handles all administrative functions including products, carriers, orders,
  * messages, coupons, ratings, and reports.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class OwnerController {
@@ -44,6 +51,8 @@ public class OwnerController {
     private TableColumn<Product, Double> prodThresholdColumn;
     @FXML
     private TableColumn<Product, String> prodStatusColumn;
+    @FXML
+    private TableColumn<Product, Void> prodImageColumn;
 
     // Carriers Tab
     @FXML
@@ -107,6 +116,8 @@ public class OwnerController {
     @FXML
     private TableColumn<Coupon, String> coupActiveColumn;
     @FXML
+    private TableColumn<Coupon, String> coupStatusColumn;
+    @FXML
     private TextField loyaltyOrdersField;
     @FXML
     private TextField loyaltyDiscountField;
@@ -152,6 +163,13 @@ public class OwnerController {
 
     private User currentUser;
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    /**
+     * Default constructor for OwnerController.
+     * Called by JavaFX when loading the FXML file.
+     */
+    public OwnerController() {
+    }
 
     /**
      * Initializes the controller.
@@ -204,6 +222,62 @@ public class OwnerController {
             String status = p.getStock() <= 0 ? "Out of Stock" : (p.isLowStock() ? "Low Stock (2x Price)" : "Normal");
             return new SimpleStringProperty(status);
         });
+
+        // Image column with thumbnail
+        prodImageColumn.setCellFactory(col -> new TableCell<Product, Void>() {
+            private final ImageView imageView = new ImageView();
+            {
+                imageView.setFitWidth(40);
+                imageView.setFitHeight(40);
+                imageView.setPreserveRatio(true);
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Product product = getTableView().getItems().get(getIndex());
+                    Image image = loadProductImage(product);
+                    if (image != null) {
+                        imageView.setImage(image);
+                        setGraphic(imageView);
+                    } else {
+                        setGraphic(new Label("No img"));
+                    }
+                }
+            }
+        });
+
+        // Set row height for images
+        productsTable.setFixedCellSize(45);
+    }
+
+    /**
+     * Loads product image from database or resources.
+     */
+    private Image loadProductImage(Product product) {
+        // First try database image
+        if (product.getImage() != null && product.getImage().length > 0) {
+            return new Image(new ByteArrayInputStream(product.getImage()));
+        }
+
+        // Fall back to resource image
+        String baseName = product.getName().toLowerCase().replace(" ", "_");
+        String[] extensions = { ".png", ".jpg", ".jpeg" };
+
+        for (String ext : extensions) {
+            try {
+                Image image = new Image(getClass().getResourceAsStream("/com/greengrocer/images/" + baseName + ext));
+                if (image != null && !image.isError()) {
+                    return image;
+                }
+            } catch (Exception e) {
+                // Try next extension
+            }
+        }
+        return null;
     }
 
     private void loadProducts() {
@@ -217,6 +291,12 @@ public class OwnerController {
         Dialog<Product> dialog = createProductDialog(null);
         Optional<Product> result = dialog.showAndWait();
         result.ifPresent(product -> {
+            // Check for duplicate name
+            if (productDAO.existsByName(product.getName())) {
+                AlertUtils.showError("Duplicate Name",
+                        "A product with the name '" + product.getName() + "' already exists.");
+                return;
+            }
             if (productDAO.add(product)) {
                 AlertUtils.showSuccess("Product added successfully!");
                 loadProducts();
@@ -237,7 +317,16 @@ public class OwnerController {
         Dialog<Product> dialog = createProductDialog(selected);
         Optional<Product> result = dialog.showAndWait();
         result.ifPresent(product -> {
-            if (productDAO.update(product)) {
+            // Check for duplicate name (excluding current product)
+            if (productDAO.existsByNameExcluding(product.getName(), product.getId())) {
+                AlertUtils.showError("Duplicate Name",
+                        "Another product with the name '" + product.getName() + "' already exists.");
+                return;
+            }
+            // Use updateWithImage if image is set
+            boolean success = product.getImage() != null ? productDAO.updateWithImage(product)
+                    : productDAO.update(product);
+            if (success) {
                 AlertUtils.showSuccess("Product updated successfully!");
                 loadProducts();
             } else {
@@ -287,6 +376,47 @@ public class OwnerController {
         TextField stockField = new TextField(existing != null ? String.valueOf(existing.getStock()) : "");
         TextField thresholdField = new TextField(existing != null ? String.valueOf(existing.getThreshold()) : "5.0");
 
+        // Image upload section
+        ImageView previewImage = new ImageView();
+        previewImage.setFitWidth(60);
+        previewImage.setFitHeight(60);
+        previewImage.setPreserveRatio(true);
+
+        // Array to hold selected image bytes
+        final byte[][] selectedImageBytes = { existing != null ? existing.getImage() : null };
+
+        // Load existing image preview
+        if (existing != null) {
+            Image img = loadProductImage(existing);
+            if (img != null) {
+                previewImage.setImage(img);
+            }
+        }
+
+        Button uploadBtn = new Button("Choose Image...");
+        Label imageLabel = new Label(selectedImageBytes[0] != null ? "Image set" : "No image");
+
+        uploadBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select Product Image");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+            File file = fileChooser.showOpenDialog(dialog.getOwner());
+            if (file != null) {
+                try {
+                    selectedImageBytes[0] = Files.readAllBytes(file.toPath());
+                    Image img = new Image(new ByteArrayInputStream(selectedImageBytes[0]));
+                    previewImage.setImage(img);
+                    imageLabel.setText(file.getName());
+                } catch (Exception ex) {
+                    AlertUtils.showError("Error", "Could not load image: " + ex.getMessage());
+                }
+            }
+        });
+
+        HBox imageBox = new HBox(10, previewImage, uploadBtn, imageLabel);
+        imageBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
         grid.add(new Label("Name:"), 0, 0);
         grid.add(nameField, 1, 0);
         grid.add(new Label("Type:"), 0, 1);
@@ -297,6 +427,8 @@ public class OwnerController {
         grid.add(stockField, 1, 3);
         grid.add(new Label("Threshold (kg):"), 0, 4);
         grid.add(thresholdField, 1, 4);
+        grid.add(new Label("Image:"), 0, 5);
+        grid.add(imageBox, 1, 5);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -332,6 +464,7 @@ public class OwnerController {
                 product.setPrice(price);
                 product.setStock(stock);
                 product.setThreshold(threshold);
+                product.setImage(selectedImageBytes[0]);
                 return product;
             }
             return null;
@@ -577,6 +710,20 @@ public class OwnerController {
                 data.getValue().getExpiryDate() != null ? data.getValue().getExpiryDate().toString() : "No expiry"));
         coupActiveColumn
                 .setCellValueFactory(data -> new SimpleStringProperty(data.getValue().isActive() ? "Yes" : "No"));
+
+        // Status column shows overall coupon status
+        coupStatusColumn.setCellValueFactory(data -> {
+            Coupon coupon = data.getValue();
+            String status;
+            if (!coupon.isActive()) {
+                status = "Inactive";
+            } else if (coupon.getExpiryDate() != null && coupon.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                status = "Expired";
+            } else {
+                status = "Active";
+            }
+            return new SimpleStringProperty(status);
+        });
     }
 
     private void loadCoupons() {
@@ -791,6 +938,6 @@ public class OwnerController {
     private void handleLogout(ActionEvent event) {
         SessionManager.getInstance().logout();
         Stage stage = (Stage) usernameLabel.getScene().getWindow();
-        SceneNavigator.loadScene(stage, "Login.fxml", "GreenGrocer - Login");
+        SceneNavigator.loadScene(stage, "Login.fxml", "Grocer App - Login");
     }
 }

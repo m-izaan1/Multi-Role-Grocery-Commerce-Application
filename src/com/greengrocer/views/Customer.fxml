@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="com.greengrocer.controllers.CustomerController"
             styleClass="main-container">
     
@@ -15,7 +15,7 @@
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
             
-            <Label text="🥬 GreenGrocer" styleClass="brand-title"/>
+            <Label text="🥬 Grocer App" styleClass="brand-title"/>
             
             <Region HBox.hgrow="ALWAYS"/>
             

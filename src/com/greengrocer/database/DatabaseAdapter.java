@@ -13,26 +13,26 @@ import java.sql.Statement;
  * 
  * This class handles all database connectivity for the Greengrocer application.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class DatabaseAdapter {
-
+    
     /** Database connection URL */
     private static final String DB_URL = "jdbc:mysql://localhost:3306/greengrocer";
-
+    
     /** Database username */
     private static final String DB_USER = "myuser";
-
+    
     /** Database password */
     private static final String DB_PASSWORD = "1234";
-
+    
     /** Singleton instance */
     private static DatabaseAdapter instance;
-
+    
     /** The active database connection */
     private Connection connection;
-
+    
     /**
      * Private constructor to prevent direct instantiation.
      * Use getInstance() to get the singleton instance.
@@ -40,7 +40,7 @@ public class DatabaseAdapter {
     private DatabaseAdapter() {
         // Private constructor for singleton
     }
-
+    
     /**
      * Gets the singleton instance of DatabaseAdapter.
      * 
@@ -52,7 +52,7 @@ public class DatabaseAdapter {
         }
         return instance;
     }
-
+    
     /**
      * Gets the database connection, creating it if necessary.
      * 
@@ -64,18 +64,18 @@ public class DatabaseAdapter {
             try {
                 // Load MySQL JDBC driver
                 Class.forName("com.mysql.cj.jdbc.Driver");
-
+                
                 // Establish connection
                 connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 System.out.println("Database connection established.");
-
+                
             } catch (ClassNotFoundException e) {
                 throw new SQLException("MySQL JDBC Driver not found: " + e.getMessage());
             }
         }
         return connection;
     }
-
+    
     /**
      * Closes the database connection if it is open.
      */
@@ -89,7 +89,7 @@ public class DatabaseAdapter {
             System.err.println("Error closing connection: " + e.getMessage());
         }
     }
-
+    
     /**
      * Executes a SELECT query and returns the ResultSet.
      * 
@@ -101,7 +101,7 @@ public class DatabaseAdapter {
         Statement statement = getConnection().createStatement();
         return statement.executeQuery(query);
     }
-
+    
     /**
      * Executes an INSERT, UPDATE, or DELETE query.
      * 
@@ -113,7 +113,7 @@ public class DatabaseAdapter {
         Statement statement = getConnection().createStatement();
         return statement.executeUpdate(query);
     }
-
+    
     /**
      * Prepares a SQL statement for execution with parameters.
      * 
@@ -124,7 +124,7 @@ public class DatabaseAdapter {
     public PreparedStatement prepareStatement(String query) throws SQLException {
         return getConnection().prepareStatement(query);
     }
-
+    
     /**
      * Prepares a SQL statement that returns generated keys.
      * 

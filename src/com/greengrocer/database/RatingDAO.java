@@ -9,7 +9,7 @@ import java.util.List;
  * Data Access Object for Rating operations.
  * Handles carrier ratings from customers.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class RatingDAO {

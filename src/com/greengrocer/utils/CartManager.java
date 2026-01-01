@@ -10,7 +10,7 @@ import java.util.List;
  * Handles cart operations including merging same products.
  * Uses Singleton pattern.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class CartManager {

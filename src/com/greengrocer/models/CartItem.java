@@ -4,7 +4,7 @@ package com.greengrocer.models;
  * Represents an item in the shopping cart.
  * Cart items can be merged when same product is added multiple times.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class CartItem {

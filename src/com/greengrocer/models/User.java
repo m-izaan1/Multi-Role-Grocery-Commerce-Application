@@ -4,7 +4,7 @@ package com.greengrocer.models;
  * Represents a user in the Greengrocer system.
  * Users can be customers, carriers, or the owner.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class User {

@@ -12,13 +12,20 @@ import java.util.List;
  * Invoice Generator for creating text-based invoices.
  * Generates invoice content stored as CLOB in database.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class InvoiceGenerator {
 
     /** Date formatter for invoice */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * Private constructor to prevent instantiation.
+     * This is a utility class with only static methods.
+     */
+    private InvoiceGenerator() {
+    }
 
     /**
      * Generates an invoice for an order.
@@ -33,10 +40,10 @@ public class InvoiceGenerator {
         StringBuilder invoice = new StringBuilder();
 
         // Header
-        invoice.append("═══════════════════════════════════════════════════════════\n");
-        invoice.append("                         GREENGROCER                         \n");
+        invoice.append("===========================================================\n");
+        invoice.append("                        GROCER APP                         \n");
         invoice.append("                         INVOICE                           \n");
-        invoice.append("═══════════════════════════════════════════════════════════\n\n");
+        invoice.append("===========================================================\n\n");
 
         // Order Info
         invoice.append("Invoice No: INV-").append(String.format("%06d", order.getId())).append("\n");
@@ -45,7 +52,7 @@ public class InvoiceGenerator {
 
         // Customer Info
         invoice.append("CUSTOMER DETAILS:\n");
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
         invoice.append("Name: ")
                 .append(customer.getFullName() != null ? customer.getFullName() : customer.getUsername()).append("\n");
         invoice.append("Address: ").append(customer.getAddress() != null ? customer.getAddress() : "N/A").append("\n");
@@ -55,15 +62,15 @@ public class InvoiceGenerator {
 
         // Delivery Info
         invoice.append("DELIVERY DETAILS:\n");
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
         invoice.append("Requested Delivery: ").append(order.getRequestedDelivery().format(DATE_FORMAT)).append("\n");
         invoice.append("\n");
 
         // Items
         invoice.append("ORDER ITEMS:\n");
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
         invoice.append(String.format("%-20s %10s %12s %12s\n", "Product", "Qty (kg)", "Price/kg", "Total"));
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
 
         for (CartItem item : items) {
             invoice.append(String.format("%-20s %10.2f %12.2f %12.2f\n",
@@ -73,7 +80,7 @@ public class InvoiceGenerator {
                     item.getTotalPrice()));
         }
 
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
 
         // Totals
         invoice.append(String.format("%44s %12.2f\n", "Subtotal:", order.getSubtotal()));
@@ -84,16 +91,16 @@ public class InvoiceGenerator {
         }
 
         invoice.append(String.format("%44s %12.2f\n", "VAT (18%):", order.getVat()));
-        invoice.append("═══════════════════════════════════════════════════════════\n");
+        invoice.append("===========================================================\n");
         invoice.append(String.format("%44s %12.2f\n", "TOTAL:", order.getTotalCost()));
-        invoice.append("═══════════════════════════════════════════════════════════\n");
+        invoice.append("===========================================================\n");
 
         // Footer
         invoice.append("\n");
-        invoice.append("Thank you for shopping at GreenGrocer!\n");
+        invoice.append("Thank you for shopping at Grocer App!\n");
         invoice.append("For questions or concerns, please contact us through the app.\n");
         invoice.append("\n");
-        invoice.append("═══════════════════════════════════════════════════════════\n");
+        invoice.append("===========================================================\n");
 
         return invoice.toString();
     }
@@ -108,10 +115,10 @@ public class InvoiceGenerator {
         StringBuilder invoice = new StringBuilder();
 
         // Header
-        invoice.append("═══════════════════════════════════════════════════════════\n");
-        invoice.append("                         GREENGROCER                         \n");
+        invoice.append("===========================================================\n");
+        invoice.append("                        GROCER APP                         \n");
         invoice.append("                         INVOICE                           \n");
-        invoice.append("═══════════════════════════════════════════════════════════\n\n");
+        invoice.append("===========================================================\n\n");
 
         // Order Info
         invoice.append("Invoice No: INV-").append(String.format("%06d", order.getId())).append("\n");
@@ -121,9 +128,9 @@ public class InvoiceGenerator {
 
         // Items
         invoice.append("ORDER ITEMS:\n");
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
         invoice.append(String.format("%-20s %10s %12s %12s\n", "Product", "Qty (kg)", "Price/kg", "Total"));
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
 
         for (OrderItem item : order.getItems()) {
             invoice.append(String.format("%-20s %10.2f %12.2f %12.2f\n",
@@ -133,7 +140,7 @@ public class InvoiceGenerator {
                     item.getTotalPrice()));
         }
 
-        invoice.append("─────────────────────────────────────────────────────────────\n");
+        invoice.append("-----------------------------------------------------------\n");
 
         // Totals
         invoice.append(String.format("%44s %12.2f\n", "Subtotal:", order.getSubtotal()));
@@ -143,9 +150,9 @@ public class InvoiceGenerator {
         }
 
         invoice.append(String.format("%44s %12.2f\n", "VAT (18%):", order.getVat()));
-        invoice.append("═══════════════════════════════════════════════════════════\n");
+        invoice.append("===========================================================\n");
         invoice.append(String.format("%44s %12.2f\n", "TOTAL:", order.getTotalCost()));
-        invoice.append("═══════════════════════════════════════════════════════════\n");
+        invoice.append("===========================================================\n");
 
         return invoice.toString();
     }

@@ -24,7 +24,7 @@ import java.util.Optional;
  * Controller for the Customer interface.
  * Handles product browsing, cart management, and order history.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class CustomerController {
@@ -58,6 +58,13 @@ public class CustomerController {
     private RatingDAO ratingDAO;
     private CartManager cartManager;
     private User currentUser;
+
+    /**
+     * Default constructor for CustomerController.
+     * Called by JavaFX when loading the FXML file.
+     */
+    public CustomerController() {
+    }
 
     /**
      * Initializes the controller.
@@ -102,12 +109,12 @@ public class CustomerController {
         // Load vegetables
         List<Product> vegetables = productDAO.getVegetables();
         displayProducts(vegetablesContainer, vegetables);
-        vegetablesPane.setText("🥕 Vegetables (" + vegetables.size() + ")");
+        vegetablesPane.setText("[V] Vegetables (" + vegetables.size() + ")");
 
         // Load fruits
         List<Product> fruits = productDAO.getFruits();
         displayProducts(fruitsContainer, fruits);
-        fruitsPane.setText("🍎 Fruits (" + fruits.size() + ")");
+        fruitsPane.setText("[F] Fruits (" + fruits.size() + ")");
     }
 
     /**
@@ -144,15 +151,16 @@ public class CustomerController {
         imageView.setFitHeight(80);
         imageView.setPreserveRatio(true);
 
-        // Load image from database or use placeholder
+        // Load image from database, file, or use placeholder
         if (product.getImage() != null) {
             try {
                 Image image = new Image(new ByteArrayInputStream(product.getImage()));
                 imageView.setImage(image);
             } catch (Exception e) {
-                // Use placeholder
-                imageView.setStyle("-fx-background-color: #e0e0e0;");
+                loadImageFromFile(imageView, product.getName());
             }
+        } else {
+            loadImageFromFile(imageView, product.getName());
         }
 
         // Product name
@@ -197,6 +205,50 @@ public class CustomerController {
         card.getChildren().addAll(imageView, nameLabel, priceLabel, stockLabel, addBox);
 
         return card;
+    }
+
+    /**
+     * Loads an image from the images folder or uses placeholder.
+     * 
+     * @param imageView   The ImageView to set the image on
+     * @param productName The name of the product (used to find the image file)
+     */
+    private void loadImageFromFile(ImageView imageView, String productName) {
+        String baseName = productName.toLowerCase().replace(" ", "_");
+        String[] extensions = { ".png", ".jpg", ".jpeg" };
+
+        for (String ext : extensions) {
+            try {
+                // Try to load product-specific image
+                Image image = new Image(getClass().getResourceAsStream("/com/greengrocer/images/" + baseName + ext));
+                if (image != null && !image.isError()) {
+                    imageView.setImage(image);
+                    return;
+                }
+            } catch (Exception e) {
+                // Try next extension
+            }
+        }
+        // No image found, use placeholder
+        loadPlaceholder(imageView);
+    }
+
+    /**
+     * Loads the placeholder image.
+     * 
+     * @param imageView The ImageView to set the placeholder on
+     */
+    private void loadPlaceholder(ImageView imageView) {
+        try {
+            Image placeholder = new Image(getClass().getResourceAsStream("/com/greengrocer/images/placeholder.png"));
+            if (placeholder != null && !placeholder.isError()) {
+                imageView.setImage(placeholder);
+            } else {
+                imageView.setStyle("-fx-background-color: #e0e0e0;");
+            }
+        } catch (Exception e) {
+            imageView.setStyle("-fx-background-color: #e0e0e0;");
+        }
     }
 
     /**
@@ -256,7 +308,7 @@ public class CustomerController {
      */
     private void updateCartButton() {
         int count = cartManager.getItemCount();
-        cartButton.setText("🛒 Cart (" + count + ")");
+        cartButton.setText("Cart (" + count + ")");
     }
 
     /**
@@ -267,7 +319,7 @@ public class CustomerController {
         int completedOrders = currentUser.getCompletedOrders();
 
         if (settings.isEligible(completedOrders)) {
-            loyaltyLabel.setText(String.format("🌟 Loyalty Member - %.0f%% discount!", settings.getDiscountPercent()));
+            loyaltyLabel.setText(String.format("* Loyalty Member - %.0f%% discount!", settings.getDiscountPercent()));
             loyaltyLabel.setStyle("-fx-text-fill: #27ae60;");
         } else {
             int ordersNeeded = settings.getMinOrdersForDiscount() - completedOrders;
@@ -307,8 +359,8 @@ public class CustomerController {
             }
         }
 
-        vegetablesPane.setText("🥕 Vegetables (" + vegCount + ")");
-        fruitsPane.setText("🍎 Fruits (" + fruitCount + ")");
+        vegetablesPane.setText("[V] Vegetables (" + vegCount + ")");
+        fruitsPane.setText("[F] Fruits (" + fruitCount + ")");
 
         statusLabel.setText("Found " + results.size() + " products for '" + keyword + "'");
     }
@@ -336,7 +388,7 @@ public class CustomerController {
             cartController.setParentController(this);
 
             Stage cartStage = new Stage();
-            cartStage.setTitle("Shopping Cart - GreenGrocer");
+            cartStage.setTitle("Shopping Cart - Grocer App");
             Scene scene = new Scene(root, 700, 600);
             scene.getStylesheets()
                     .add(getClass().getResource("/com/greengrocer/styles/application.css").toExternalForm());
@@ -354,8 +406,9 @@ public class CustomerController {
             updateLoyaltyStatus();
 
         } catch (Exception e) {
+            System.err.println("ERROR opening cart: " + e.getClass().getName() + ": " + e.getMessage());
             e.printStackTrace();
-            AlertUtils.showError("Error", "Could not open shopping cart.");
+            AlertUtils.showError("Error", "Could not open shopping cart: " + e.getMessage());
         }
     }
 
@@ -637,6 +690,10 @@ public class CustomerController {
         TabPane tabPane = new TabPane();
         tabPane.setPrefSize(500, 400);
 
+        // Create message list early so it can be referenced from send button
+        ListView<Message> messageList = new ListView<>();
+        messageList.getItems().addAll(messages);
+
         // Send Message Tab
         Tab sendTab = new Tab("Send Message");
         sendTab.setClosable(false);
@@ -665,6 +722,9 @@ public class CustomerController {
                 AlertUtils.showSuccess("Message sent successfully!");
                 subjectField.clear();
                 messageField.clear();
+                // Refresh message list
+                messageList.getItems().clear();
+                messageList.getItems().addAll(messageDAO.findBySender(currentUser.getId()));
             }
         });
 
@@ -681,9 +741,6 @@ public class CustomerController {
 
         VBox viewContent = new VBox(10);
         viewContent.setPadding(new Insets(15));
-
-        ListView<Message> messageList = new ListView<>();
-        messageList.getItems().addAll(messages);
         messageList.setCellFactory(lv -> new ListCell<Message>() {
             @Override
             protected void updateItem(Message msg, boolean empty) {
@@ -694,7 +751,7 @@ public class CustomerController {
                     String text = msg.getSubject() + "\n" +
                             "Sent: " + msg.getSentAt().toString();
                     if (msg.hasReply()) {
-                        text += "\n✓ Reply: " + msg.getReply();
+                        text += "\n> Reply: " + msg.getReply();
                     }
                     setText(text);
                 }
@@ -730,7 +787,7 @@ public class CustomerController {
 
         // Navigate to login
         Stage stage = (Stage) usernameLabel.getScene().getWindow();
-        SceneNavigator.loadScene(stage, "Login.fxml", "GreenGrocer - Login");
+        SceneNavigator.loadScene(stage, "Login.fxml", "Grocer App - Login");
     }
 
     /**

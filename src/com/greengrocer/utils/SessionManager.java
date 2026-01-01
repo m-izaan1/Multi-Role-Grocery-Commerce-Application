@@ -6,7 +6,7 @@ import com.greengrocer.models.User;
  * Session Manager for tracking the currently logged-in user.
  * Uses Singleton pattern.
  * 
- * @author GreenGrocer Team
+
  * @version 1.0
  */
 public class SessionManager {

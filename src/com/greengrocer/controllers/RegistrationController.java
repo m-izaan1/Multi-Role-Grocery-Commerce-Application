@@ -14,7 +14,7 @@ import javafx.stage.Stage;
  * Controller for the Registration screen.
  * Handles new customer registration.
  * 
- * @author GreenGrocer Team
+ * 
  * @version 1.0
  */
 public class RegistrationController {
@@ -53,6 +53,13 @@ public class RegistrationController {
     private UserDAO userDAO;
 
     /**
+     * Default constructor for RegistrationController.
+     * Called by JavaFX when loading the FXML file.
+     */
+    public RegistrationController() {
+    }
+
+    /**
      * Initializes the controller.
      */
     @FXML
@@ -78,9 +85,29 @@ public class RegistrationController {
         String phone = phoneField.getText().trim();
         String email = emailField.getText().trim();
 
-        // Validate required fields
+        // Validate all required fields
         if (username.isEmpty()) {
             showError("Username is required.");
+            return;
+        }
+
+        if (fullName.isEmpty()) {
+            showError("Full name is required.");
+            return;
+        }
+
+        if (address.isEmpty()) {
+            showError("Address is required.");
+            return;
+        }
+
+        if (email.isEmpty()) {
+            showError("Email is required.");
+            return;
+        }
+
+        if (phone.isEmpty()) {
+            showError("Phone number is required.");
             return;
         }
 
@@ -97,15 +124,27 @@ public class RegistrationController {
             return;
         }
 
+        // Validate email format (must contain @ and . with proper structure)
+        if (!ValidationUtils.isValidEmail(email)) {
+            showError("Please enter a valid email address (e.g., user@example.com).");
+            return;
+        }
+
+        // Validate phone number format (exactly 11 digits)
+        if (!ValidationUtils.isValidPhone(phone)) {
+            showError("Please enter a valid phone number (exactly 11 digits).");
+            return;
+        }
+
         // Create user object
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(password);
         newUser.setRole("CUSTOMER");
-        newUser.setFullName(fullName.isEmpty() ? null : fullName);
-        newUser.setAddress(address.isEmpty() ? null : address);
-        newUser.setPhone(phone.isEmpty() ? null : phone);
-        newUser.setEmail(email.isEmpty() ? null : email);
+        newUser.setFullName(fullName);
+        newUser.setAddress(address);
+        newUser.setPhone(phone);
+        newUser.setEmail(email);
 
         // Attempt registration
         boolean success = userDAO.register(newUser);
@@ -115,7 +154,7 @@ public class RegistrationController {
 
             // Navigate back to login
             Stage stage = (Stage) registerButton.getScene().getWindow();
-            SceneNavigator.loadScene(stage, "Login.fxml", "GreenGrocer - Login");
+            SceneNavigator.loadScene(stage, "Login.fxml", "Grocer App - Login");
         } else {
             showError("Registration failed. Username may already exist.");
         }
@@ -130,7 +169,7 @@ public class RegistrationController {
     @FXML
     private void handleCancel(ActionEvent event) {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
-        SceneNavigator.loadScene(stage, "Login.fxml", "GreenGrocer - Login");
+        SceneNavigator.loadScene(stage, "Login.fxml", "Grocer App - Login");
     }
 
     /**
