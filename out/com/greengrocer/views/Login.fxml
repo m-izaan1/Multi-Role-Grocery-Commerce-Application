@@ -18,7 +18,7 @@
                 <padding>
                     <Insets bottom="8" left="20" right="20" top="20" />
                 </padding>
-                <Label text="🥬 Group17 GreenGrocer" styleClass="app-title"/>
+                <Label text="🥬 Grocer App" styleClass="app-title"/>
                 <Label text="Please enter your details to sign in" styleClass="subtitle">
                     <VBox.margin>
                         <Insets top="5" />

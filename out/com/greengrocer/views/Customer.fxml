@@ -15,7 +15,7 @@
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
             
-            <Label text="🥬 Group17 GreenGrocer" styleClass="brand-title"/>
+            <Label text="🥬 Grocer App" styleClass="brand-title"/>
             
             <Region HBox.hgrow="ALWAYS"/>
             
